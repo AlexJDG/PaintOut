@@ -1,0 +1,28 @@
+@font-face 
+{
+    font-family: 'codeproregular';
+    src: url('assets/codeproregular/Code_Pro_Demo-webfont.eot');
+    src: url('assets/codeproregular/Code_Pro_Demo-webfont.eot?#iefix') format('embedded-opentype'),
+         url('assets/codeproregular/Code_Pro_Demo-webfont.woff2') format('woff2'),
+         url('assets/codeproregular/Code_Pro_Demo-webfont.woff') format('woff'),
+         url('assets/codeproregular/Code_Pro_Demo-webfont.ttf') format('truetype'),
+         url('assets/codeproregular/Code_Pro_Demo-webfont.svg#code_pro_demoregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+body
+{
+	height:100%;
+	width:100%;
+	position:fixed;
+	margin: 0;
+}
+canvas#breakout
+{
+	background: #212121;
+	width:100%;
+	height:100%;
+	font-family: 'code_pro_light';
+}
