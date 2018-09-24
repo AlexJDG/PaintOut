@@ -1,4 +1,4 @@
-import {clamp} from './utils.js';
+import {circleInsideRect, clamp} from './utils.js';
 
 class Ball {
 
@@ -55,17 +55,21 @@ class Ball {
         }
     }
 
-    bounceOffPaddle(paddle) {
-        let bouncePoint = ((paddle.x + paddle.width / 2) - this.x) * -1 + (Math.random() - 0.5);
-        let maxBounceAngle = Math.PI / 3; // 60 degrees
+    processPaddleCollisions(paddle) {
+        if (circleInsideRect(this.x, this.y, this.radius, paddle.x, paddle.y, paddle.width, paddle.height)) {
+            let bouncePoint = ((paddle.x + paddle.width / 2) - this.x) * -1 + (Math.random() - 0.5);
+            let maxBounceAngle = Math.PI / 3; // 60 degrees
 
-        // Normalises bounce point to give values between -1 and 1
-        let normalisedBouncePoint = (bouncePoint / (paddle.width / 2));
-        let bounceAngle = normalisedBouncePoint * maxBounceAngle;
-        let ballSpeed = Math.sqrt(Math.pow(this.xSpeed, 2) + Math.pow(this.ySpeed, 2));
+            // Normalises bounce point to give values between -1 and 1
+            let normalisedBouncePoint = (bouncePoint / (paddle.width / 2));
+            let bounceAngle = normalisedBouncePoint * maxBounceAngle;
+            let ballSpeed = Math.sqrt(Math.pow(this.xSpeed, 2) + Math.pow(this.ySpeed, 2));
 
-        this.xSpeed = ballSpeed * Math.sin(bounceAngle);
-        this.ySpeed = ballSpeed * -Math.cos(bounceAngle);
+            this.xSpeed = ballSpeed * Math.sin(bounceAngle);
+            this.ySpeed = ballSpeed * -Math.cos(bounceAngle);
+            this.y = paddle.y - 1 - this.radius;
+            paddle.paint(this.colour);
+        }
     }
 
     isOffScreen(canvas) {

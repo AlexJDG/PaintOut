@@ -19,6 +19,9 @@ class Game {
         this.canvas = canvas;
         this.paddle = new Paddle(200, 20, 500, this.canvas);
         this.ball = new Ball(this.canvas.width / 2, this.paddle.y, 600, 15);
+        this.score = 0;
+        this.timeScale = 0;
+        this.keysDown = {};
 
         this.bricks = new Array(B_ROWS * B_COLS).fill(null).map((item, index) => {
             let row = Math.floor(index / B_COLS); // The row we're on
@@ -29,8 +32,13 @@ class Game {
                 B_WIDTH,
                 B_HEIGHT
             );
+
             // Paint them funky colours
-            brick.paint(colour(quadratic(col, B_COLS, -1, 1), Math.floor((row + 1) / B_ROWS * 255), quadratic(col, B_COLS, 1, 0)));
+            brick.paint(colour(
+                quadratic(col, B_COLS, -1, 1), // R
+                Math.floor((row + 1) / B_ROWS * 255), // G
+                quadratic(col, B_COLS, 1, 0) // B
+            ));
 
             // Lock every third row
             if (row % 3 === 0) {
@@ -40,20 +48,14 @@ class Game {
             return brick;
         });
 
-        this.score = 0;
-        this.timeScale = 0;
-
         this.ball.setResetCb(ball => {
             ball.x = this.canvas.width / 2;
             ball.y = (this.paddle.y - ball.radius) - 1;
-            this.ball.bounceOffPaddle(this.paddle);
         });
 
         this.paddle.setResetCb(paddle => {
             paddle.x = (this.canvas.width - this.paddle.width) / 2;
         });
-
-        this.keysDown = {};
 
         window.addEventListener("keydown", e => {
             this.keysDown[e.key] = true;
@@ -126,6 +128,7 @@ class Game {
         }
 
         this.ball.processBorderCollisions(this.canvas);
+        this.ball.processPaddleCollisions(this.paddle);
 
         // If we're off screen, die
         if (this.ball.isOffScreen(this.canvas)) {
@@ -133,12 +136,6 @@ class Game {
         }
 
         // TODO: Refactor the shit outta the rest of this method
-        //bounce the this.ball off the paddle
-        if (((this.ball.x + this.ball.radius >= this.paddle.x) && (this.ball.x - this.ball.radius <= this.paddle.x + this.paddle.width)) && ((this.ball.y + this.ball.radius >= this.paddle.y) && (this.ball.y + this.ball.radius <= this.paddle.y + this.paddle.height))) {
-            this.ball.bounceOffPaddle(this.paddle);
-            this.ball.y = this.paddle.y - 1 - this.ball.radius;
-            this.paddle.colour = this.ball.colour;
-        }
 
         // Bounce the this.ball off the bricks and disable bricks when they are hit
         this.bricks.forEach(brick => {
