@@ -1,4 +1,4 @@
-import { clamp } from './utils.js';
+import {clamp} from './utils.js';
 
 class Ball {
 
@@ -19,6 +19,10 @@ class Ball {
         this.resetCb = resetCb;
     }
 
+    reset() {
+        this.resetCb(this);
+    }
+
     pop() {
         // Play the next sound in the buffer and increment the pointer
         return this.sound[this.soundPtr++ % 3].play();
@@ -33,11 +37,7 @@ class Ball {
         this.y += this.ySpeed * elapsedTime;
     }
 
-    reset() {
-        this.resetCb(this);
-    }
-
-    checkBorderCollisions(canvas) {
+    processBorderCollisions(canvas) {
         // Normalise x so the center of the screen is 0
         let normalisedX = this.x - canvas.width / 2;
         if (Math.abs(normalisedX) > (canvas.width / 2) - this.radius) {
@@ -53,10 +53,23 @@ class Ball {
             this.ySpeed = -this.ySpeed;
             this.y = this.radius;
         }
+    }
 
-        if (this.y + this.radius > canvas.height) {
-            this.reset();
-        }
+    bounceOffPaddle(paddle) {
+        let bouncePoint = ((paddle.x + paddle.width / 2) - this.x) * -1 + (Math.random() - 0.5);
+        let maxBounceAngle = Math.PI / 3; // 60 degrees
+
+        // Normalises bounce point to give values between -1 and 1
+        let normalisedBouncePoint = (bouncePoint / (paddle.width / 2));
+        let bounceAngle = normalisedBouncePoint * maxBounceAngle;
+        let ballSpeed = Math.sqrt(Math.pow(this.xSpeed, 2) + Math.pow(this.ySpeed, 2));
+
+        this.xSpeed = ballSpeed * Math.sin(bounceAngle);
+        this.ySpeed = ballSpeed * -Math.cos(bounceAngle);
+    }
+
+    isOffScreen(canvas) {
+        return this.y + this.radius > canvas.height;
     }
 
     render(ctx) {
